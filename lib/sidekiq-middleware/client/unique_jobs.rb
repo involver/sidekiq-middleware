@@ -25,8 +25,13 @@ module Sidekiq
               if conn.get(payload_hash)
                 conn.unwatch
               else
-                unique = conn.multi do
-                  conn.setex(payload_hash, expiration, 1)
+                if expiration > 0
+                  unique = conn.multi do
+                    conn.setex(payload_hash, expiration, 1)
+                  end
+                else
+                  conn.unwatch
+                  unique = true
                 end
               end
             end
